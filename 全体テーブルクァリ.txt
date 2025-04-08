@@ -1,0 +1,540 @@
+-- 1. 회사 정보 테이블 (kaisha_zyouhou)
+CREATE TABLE kaisha_zyouhou (
+    kaisha_mei VARCHAR2(50),         --회사명
+    shachou_yakushoku VARCHAR2(15),  --CEO직책 
+    shachou_mei VARCHAR2(20),        --CEO이름
+    zigyou_bangou NUMBER,            --사업자번호
+    houzin_bangou NUMBER,            --법인번호
+    setsuritsu_bi DATE,              --설립일
+    ulebusaito VARCHAR2(100),        --웹사이트   
+    zigyouzyou_zyuusho VARCHAR2(200),--사업장 주소
+    denwa_bangou NUMBER,             --전화번호
+    fakus__bangou VARCHAR2(20),      --팩스번호
+    zigyou_shurui VARCHAR2(30),      --사업종류
+    zigyou_naiyou VARCHAR2(30)       --사업 내용
+);
+
+-- 2. 급여 지급 정보 테이블 (kyuuyo_shikyuu_zyouhou)
+CREATE TABLE kyuuyo_shikyuu_zyouhou (
+    shain_ID NUMBER,               -- 사원 ID (Foreign Key)
+    kyuuyo_seisan_kikan DATE,      -- 급여 정산 기간
+    kyuuyo_shikyuu_bi DATE,        -- 급여 지급일
+    kinyuu_kikan VARCHAR2(20),     -- 금융 기관
+    kouza_bangou VARCHAR2(20),     -- 계좌 번호
+    yokinshu VARCHAR2(20),         -- 예금주
+    CONSTRAINT fk_shain_ID_kyuuyo_shikyuu FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 3. 담당자 정보 테이블 (tantousha_zyouhou)
+CREATE TABLE tantousha_zyouhou (
+    namae VARCHAR2(30),            --이름
+    bu VARCHAR2(30),               --부서
+    yakushoku VARCHAR2(30),        --직책
+    denwa_bangou VARCHAR2(20),     --전화번호
+    keitai_bangou VARCHAR2(20),    --휴대전화번호
+    meiru_adoresu VARCHAR2(100)    --이메일주소
+);
+
+-- 4. 부서 테이블 (busho_settei)            
+CREATE TABLE busho_settei(
+    shain_id NUMBER,
+    busho_mei VARCHAR2(30),
+    CONSTRAINT fk_shain_ID_bu_settei FOREIGN KEY (shain_id) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 5. 직위 테이블 (shokui_settei)
+CREATE TABLE shokui_settei (
+    shain_id NUMBER,
+    shokui_mei VARCHAR2(30),
+    CONSTRAINT fk_shain_ID_shokui_settei FOREIGN KEY (shain_id) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 6. 사원 등록 테이블 (shain_touroku)
+CREATE TABLE shain_touroku (
+    shain_ID NUMBER PRIMARY KEY,        -- 사원 ID
+    koyou_keitai VARCHAR2(30),          -- 고용 형태
+    shain_namae VARCHAR2(100),          -- 사원 이름
+    shain_eigo_namae VARCHAR2(100),     -- 사원 영어 이름
+    nyuusha_bi DATE,                    -- 입사일
+    taisha_bi DATE,                     -- 퇴사일 (optional)
+    bu VARCHAR2(30),                    -- 부서
+    yakushoku VARCHAR2(30),             -- 직위
+    nai_gaikokuzin VARCHAR2(30),        -- 내외국인
+    zyuumin_bangou VARCHAR2(30),        -- 주민번호
+    zyuusho VARCHAR2(200),              -- 주소
+    denwa_bangou VARCHAR2(20),          -- 전화번호
+    keitai_bangou VARCHAR2(20),         -- 휴대전화번호
+    meiru_adoresu VARCHAR2(100),        -- 이메일
+    sns VARCHAR2(100),                  -- SNS
+    bikou CLOB                          -- 비고
+);
+
+CREATE TABLE kyuuyo_shidai_hoken (
+    shain_ID NUMBER,
+    kokumin_nenkin CHAR(1),             -- 국민연금
+    kenko_hoken CHAR(1),                -- 건강보험
+    genmen1 NUMBER,                     -- 감면 (1번째)
+    kaigo_hoken CHAR(1),                -- 노인장기요양보험 포함
+    genmen2 NUMBER,                     -- 감면 (2번째)
+    koyo_hoken CHAR(1),                 -- 고용보험
+    rodo_sha CHAR(1),                   -- 근로소득자
+    zeigaku NUMBER,                     -- 세액
+    seinen_zei CHAR(1),                 -- 중소기업 청년 소득세
+    genmen3 NUMBER,                     -- 감면 (3번째)
+    jigyo_sha CHAR(1),                  -- 사업소득자
+    hiyatoi CHAR(1),                    -- 일용직
+    sonota_sha CHAR(1),                 -- 기타소득자
+    rodo_jigyo_sha CHAR(1),             -- 근로/사업소득자
+    menjo CHAR(1),                      -- 면제
+    gaito_nashi1 CHAR(1),               -- 해당없음
+    shinki_80_1 CHAR(1),                -- 신규가입자(80% 지원)
+    shinki_90_1 CHAR(1),                -- 신규가입자(90% 지원)
+    gaito_nashi2 CHAR(1),               -- 해당없음 (2번째)
+    shinki_80_2 CHAR(1),                -- 신규가입자(80% 지원) (2번째)
+    shinki_90_2 CHAR(1),                -- 신규가입자(90% 지원) (2번째)                
+    kihonkyuu NUMBER,                   -- 기본급
+    nenkin_shotoku NUMBER,              -- 연금 표준소득
+    kenko_shotoku NUMBER,               -- 건강보험 소득
+    koyo_shotoku NUMBER,                -- 고용보험 소득
+    sangyou_saigai NUMBER,              -- 산업재해보험
+    ginkou_mei VARCHAR2(100),           -- 은행명
+    kouza_bangou VARCHAR2(20),          -- 계좌번호
+    CONSTRAINT fk_shain_ID_kyuuyo_shidai FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+
+-- 8. 4대 보험 정보 테이블 (shidai_hoken_zyouhou)
+CREATE TABLE shidai_hoken_zyouhou (
+    hoken_ID NUMBER PRIMARY KEY,   -- 보험ID (PK)
+    shain_ID NUMBER,               -- 사원ID (FK)
+    hoken_shurui VARCHAR2(30),     -- 보험 종류
+    touroku_bangou VARCHAR2(50),   -- 등록 번호
+    shutoku_bi DATE,               -- 취득일
+    sousitsu_bi DATE,              -- 상실일
+    CONSTRAINT fk_shain_ID_shidai_hoken FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 9. 부양 가족 테이블 (huyou_kazoku)
+CREATE TABLE huyou_kazoku (
+    shain_ID NUMBER,
+    namae VARCHAR2(30),
+    kankei VARCHAR2(30),
+    zyuumin_touroku_bangou VARCHAR2(20),
+    shougai_umu CHAR(1),
+    zei_kouzyo_umu CHAR(1),
+    kenkou_hoken_umu CHAR(1),
+    doukyo_umu CHAR(1),
+    nen20_ika_ko_umu CHAR(1),
+    CONSTRAINT fk_shain_ID_huyou_kazoku FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 10. 경력 정보 테이블 (keireki_zyouhou)
+CREATE TABLE keireki_zyouhou (
+    shain_ID NUMBER,                --사원ID
+    kaisha_mei VARCHAR2(100),        --회사명
+    nyuusha_bi DATE,                   --입사일        -> tasha_nyuusha_bi  //바꾼 이유 : 외래키가 아닌데 6번 사원테이블 입사일과 겹침
+    taishoku_bi DATE,                     --퇴사일    -> tasha_taishoku_bi  //바꾼 이유 : 외래키가 아닌데 18번 퇴직테이블 퇴사일과 겹침
+    kinmu_kikan NUMBER,                     --근무 기간
+    saishuu_yakushoku VARCHAR2(30),       --최종 직책
+    tantou_shokumu VARCHAR2(50),     --담당직무
+    taishoku_ziyuu VARCHAR2(300),            --퇴직 사유
+    CONSTRAINT fk_shain_ID_keireki FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 11. 병역 정보 테이블 (heieki_zyouhou)
+CREATE TABLE heieki_zyouhou (
+    shain_ID NUMBER,               -- 사원ID     
+    heieki_kubun VARCHAR2(30),     -- 군 복무 종류
+    gun_betsu VARCHAR2(100),       -- 복무 부서
+    hukumu_kaishi_bi DATE,         -- 복무 시작일
+    hukumu_shuuryou_bi DATE,       -- 복무 종료일
+    saishuu_kaikyuu VARCHAR2(50),  -- 최종 계급
+    heika VARCHAR2(30),            -- 병과
+    miryou_ziyuu VARCHAR2(200),    -- 미필사유
+    CONSTRAINT fk_shain_ID_heieki FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 12. 자격 면허 테이블 (shikaku_menkyou)
+CREATE TABLE shikaku_menkyou (
+    shain_ID NUMBER,               -- 사원ID (FK)
+    shikaku_mei VARCHAR2(100),     -- 자격증명
+    hakkyuu_bi DATE,               -- 발급일
+    hakkyuu_kikan_mei VARCHAR2(100),-- 발급 기관명
+    shikakushou_bangou VARCHAR2(50),-- 자격증번호
+    biko CLOB,                     -- 비고
+    CONSTRAINT fk_shain_ID_shikaku FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 13. 어학 능력 테이블 (gogaku_nouryoku)
+CREATE TABLE gogaku_nouryoku (
+    shain_ID NUMBER,               -- 사원ID (FK)
+    gaikokugo_mei VARCHAR2(30),    -- 외국어명
+    shiken_mei VARCHAR2(30),       -- 시험 이름
+    kounin_tensuu NUMBER,          -- 공인점수
+    shutoku_bi DATE,               -- 취득일
+    dokkai VARCHAR2(20),           -- 독해
+    sakubun VARCHAR2(20),          -- 작문
+    kaiwa VARCHAR2(20),            -- 회화
+    CONSTRAINT fk_shain_ID_gogaku FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 14. 교육 훈련 테이블 (kyouiku_kunren)
+CREATE TABLE kyouiku_kunren (
+    shain_ID NUMBER,               -- 사원 ID (FK)  
+    kyouiku_shurui VARCHAR2(50),   -- 교육 종류
+    kyouiku_mei VARCHAR2(100),     -- 교육 이름
+    kaishi_bi DATE,                -- 시작일
+    shuuryou_bi DATE,              -- 종료일
+    kyouiku_kikan_mei VARCHAR2(100),-- 교육 기관명
+    kyouiku_hi NUMBER,             -- 교육 비용
+    kanpu_kyouiku_hi NUMBER,       -- 환급 교육비
+    CONSTRAINT fk_shain_ID_kunren FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 15. 상벌 테이블 (shoubatsu)
+CREATE TABLE shoubatsu (
+    shain_ID NUMBER,               -- 사원ID (FK)
+    shoubatsu_mei VARCHAR2(30),    -- 상벌 명칭
+    kantoku_kikan VARCHAR2(30),    -- 감독 기관
+    shoubatsu_bi DATE,             -- 상벌 날짜
+    naiyou CLOB,                   -- 내용
+    bikou CLOB,                    -- 비고
+    CONSTRAINT fk_shain_ID_shoubatsu FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 16. 발령 테이블 (hatsurei)
+CREATE TABLE hatsurei (
+    shain_ID NUMBER,               -- 사원ID (KF)
+    hatsurei_bi DATE,              -- 발령일
+    bu VARCHAR2(30),               -- 부서
+    yakushoku_mei VARCHAR2(100),   -- 직위 명칭    
+    shokumu_mei VARCHAR2(30),      -- 직무 명칭
+    bikou CLOB,                    -- 비고
+    CONSTRAINT fk_shain_ID_hatsurei FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 17. 보증인 테이블 (hoshounin)
+CREATE TABLE hoshounin (
+    shain_ID NUMBER,               -- 사원ID (FK)
+    hoshounin_mei VARCHAR2(100),   -- 보증인 이름
+    kankei VARCHAR2(30),           -- 관계
+    zyuumin_touroku_bangou VARCHAR2(20),-- 주민등록번호
+    hoshou_kingaku NUMBER,         -- 보증 금액
+    hoshou_bi DATE,                -- 보증일
+    syuuryou_bi DATE,              -- 종료일
+    denwa_bangou VARCHAR2(20),     -- 전화번호
+    CONSTRAINT fk_shain_ID_hoshounin FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 18. 퇴직 테이블 (taishoku)
+CREATE TABLE taishoku (
+    shain_ID NUMBER,               -- 사원 ID (Foreign Key)
+    zyoutai VARCHAR2(100),         -- 상태(재직, 퇴직)
+    taishoku_kubun VARCHAR2(100),  -- 퇴직 구분
+    taishoku_bi DATE,              -- 퇴직 일자
+    taishoku_ziyuu VARCHAR2(200),  -- 퇴직 사유
+    taishoku_go_renrakusaki VARCHAR2(100),-- 퇴직 후 연락처
+    chuukan_seisan_umu CHAR(1),    -- 중간정산 여부
+    taishoku_seisan_umu CHAR(1),   -- 퇴직정산 여부
+    taishoku_kin NUMBER,           -- 퇴직금
+    seisan_kubun VARCHAR2(100), --정산구분
+    bikou BLOB,                    -- 비고
+    CONSTRAINT fk_shain_ID_taishoku FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 19. 사원별 휴가일수 테이블(kyuuka_nissuu)
+CREATE TABLE kyuuka_nissuu (
+    koyou_keitai VARCHAR2(30),     -- 고용 형태
+    kyuuka_ID NUMBER, - 휴가항목
+    shain_ID NUMBER PRIMARY KEY,   -- 사원번호
+    shain_namae VARCHAR2(100),     -- 사원 이름
+    bu VARCHAR2(30),               -- 부서
+    yakushoku VARCHAR2(30),        -- 직위
+    nyuusha_bi DATE,               -- 입사일
+    kyuuka_nissuu NUMBER,          -- 휴가 일수
+    shiyou_kyuuka_nissuu NUMBER, --사용 휴가 일수
+    nokori_kyuuka_nissuu NUMBER    -- 잔여 휴가 일수
+);
+
+-- 20. 직원 급여 테이블 (shain_kyuuyo)
+CREATE TABLE shain_kyuuyo (
+    kyuuyo_ID NUMBER PRIMARY KEY,               -- 급여 ID (PK)
+    shain_ID NUMBER NOT NULL,                   -- 사원 ID (Foreign Key)
+    total_shiharai_ID NUMBER NOT NULL,          -- 지급 항목 ID (Foreign Key)
+    total_koujyo_ID NUMBER NOT NULL,            -- 공제 항목 ID (Foreign Key)
+    shikyuu_bi DATE NOT NULL,                   -- 지급일
+    seisan_kaishi_bi DATE NOT NULL,             -- 정산 기간 시작일
+    seisan_shuryo_bi DATE NOT NULL,             -- 정산 기간 종료일
+    CONSTRAINT fk_shain_ID_kyuuyo_shain FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID),  -- 고유한 이름으로 수정
+    CONSTRAINT fk_total_shiharai FOREIGN KEY (total_shiharai_ID) REFERENCES total_shiharai(total_kingaku),
+    CONSTRAINT fk_total_koujyo FOREIGN KEY (total_koujyo_ID) REFERENCES total_kouzyo(koujo_id)
+);
+
+
+
+-- 21. 지급항목 테이블 (total_shiharai)
+CREATE TABLE total_shiharai (
+    total_kingaku NUMBER PRIMARY KEY,    -- 지급 항목 ID
+    shain_ID NUMBER,                     -- 사원 ID (외래 키)
+    shikyuuzoukyuu NUMBER,               -- 지급 총액
+    kihonkyu NUMBER,                     -- 기본급
+    shokujitane NUMBER,                  -- 식사 수당
+    hoikutane NUMBER,                    -- 보육 수당
+    yakushokutane NUMBER,                -- 직책 수당
+    sharyouijihi NUMBER,                 -- 차량 유지비
+    kinzokutane NUMBER,                  -- 근속 수당
+    touchakutane NUMBER,                 -- 당직 수당
+    shouyo NUMBER,                       -- 보너스
+    kyuujitsutane NUMBER,                -- 휴일 수당
+    kazei_umu VARCHAR2(50),              -- 과세 여부
+    zessa_tani VARCHAR2(50),             -- 절사 단위
+    kintai_ikkatsu VARCHAR2(50),         -- 근태 연결/일괄 지급
+    ikkatsu_shikyuugaku NUMBER,          -- 일괄 지급액
+    shiyou_umu CHAR(1) DEFAULT 'Y',      -- 사용 여부
+    keisan_houhou VARCHAR2(50),          -- 계산 방법
+    CONSTRAINT fk_shain_ID FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 22. 공제항목 테이블 (total_kouzyo)
+CREATE TABLE total_kouzyo (
+    koujo_id NUMBER PRIMARY KEY,         -- 공제 항목 ID
+    shain_ID NUMBER,                     -- 사원 ID (외래 키)
+    koujo_sougaku NUMBER,                -- 공제 총액
+    shotokuzei NUMBER,                   -- 소득세
+    chiho_shotokuzei NUMBER,             -- 지방소득세
+    koujokamoku NUMBER,                  -- 공제 항목
+    daibu_hoken NUMBER,                  -- 4대보험
+    kikandani_shotokuzei NUMBER,         -- 기간단위소득세
+    kokumin_nenkin NUMBER,               -- 국민연금
+    kenkou_hoken NUMBER,                 -- 건강보험
+    choukikaigo_hoken NUMBER,            -- 장기요양보험
+    koyou_hoken NUMBER,                  -- 고용보험
+    gojokaihi NUMBER,                    -- 상호부조비
+    zessa_tani VARCHAR2(50),             -- 절사 단위
+    shiyou_umu CHAR(1) DEFAULT 'Y',      -- 사용 여부
+    bikou VARCHAR2(200),                 -- 비고
+    keisan_houhou VARCHAR2(50),          -- 계산 방법
+    CONSTRAINT fk_shain_ID_kouzyo FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+
+-- 23. 총 금액 저장 테이블 (total_kingaku)
+CREATE TABLE total_kingaku (
+    kingaku_ID NUMBER PRIMARY KEY,      -- 총액 ID
+    gatsu NUMBER(2),                    -- 월
+    nendo NUMBER(4),                    -- 연도
+    total_shiharai NUMBER,              -- 지급 총액
+    total_kouzyo NUMBER,                -- 공제 총액
+    CONSTRAINT fk_total_shiharai_kingaku FOREIGN KEY (total_shiharai) REFERENCES total_shiharai(total_kingaku),
+    CONSTRAINT fk_total_kouzyo_kingaku FOREIGN KEY (total_kouzyo) REFERENCES total_kouzyo(koujo_id)  -- 수정된 외래키 참조
+);
+
+-- 24. 학력 정보 테이블 (gakureki_zyouhou)
+CREATE TABLE gakureki_zyouhou (
+    gakureki_ID NUMBER PRIMARY KEY, -- 학력ID (PK)
+    shain_ID NUMBER,                -- 사원 ID (FK)
+    gakkou_mei VARCHAR2(100),       -- 학교명
+    gakui VARCHAR2(50),             -- 학위
+    senkou VARCHAR2(100),           -- 전공
+    nyuugaku_bi DATE,               -- 입학식
+    sotsugyou_bi DATE,              -- 졸업식
+    sotsugyou_umu CHAR(1),          -- 졸업 여부
+    CONSTRAINT fk_shain_ID_gakureki FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 25. 휴가 항목 설정 테이블 (kyuuka_koumoku_settei)
+CREATE TABLE kyuuka_koumoku_settei (
+    kyuuka_ID NUMBER PRIMARY KEY,   -- 휴가 항목 ID(PK)
+    kyuuka_shurui VARCHAR2(50),     -- 휴가 종류
+    tekiyou_kikan DATE,             -- 적용 기간
+    kyuuka_nissuu NUMBER,           -- 휴가 일수
+    shiyou_kanou_umu CHAR(1) DEFAULT 'Y' -- 사용 가능 여부
+);
+
+-- 26. 근태 항목 설정 테이블 (kintai_koumoku_settei)
+CREATE TABLE kintai_koumoku_settei (
+    kintai_ID NUMBER PRIMARY KEY,   -- 근태
+    kintai_shurui VARCHAR2(50),     -- 근태_종류
+    kouzyo_kisoku VARCHAR2(100),    -- 공제 규칙
+    tani VARCHAR2(50),              -- 단위
+    shiyou_kanou_umu CHAR(1) DEFAULT 'Y' -- 사용 가능 여부
+);
+
+-- 27. 근태 관리 그룹 (kinta_kanri_guruupu)
+CREATE TABLE kinta_kanri_guruupu (
+    kintai_mei VARCHAR2(30) PRIMARY KEY,   -- 근태명 (PK)
+    kintai_ID NUMBER,                      -- 근태 ID (FK)
+    CONSTRAINT fk_kintai FOREIGN KEY (kintai_ID) REFERENCES kintai_koumoku_settei(kintai_ID)
+);
+
+
+-- 28. 추천 & 신원보증 테이블 (suisen_mimoto_hoshounin)  
+CREATE TABLE suisen_mimoto_hoshounin (         
+    mimoto_hoshounin_ID NUMBER PRIMARY KEY, -- 신원 보증인 ID (PK)
+    shain_ID NUMBER,                        -- 사원ID (FK)
+    suisenin_mei VARCHAR2(100),             -- 추천인 이름
+    kankei VARCHAR2(30),                    -- 관계
+    suisen_kaisha_mei VARCHAR2(100),        -- 추천 회사명
+    suisen_yakushoku VARCHAR2(50),          -- 추천 직위
+    suisen_denwa_bangou VARCHAR2(20),       -- 추천인 전화번호
+    hoshou_kingaku NUMBER,                  -- 보증 금액
+    hoshou_bi DATE,                         -- 보증일
+    shuryou_bi DATE,                        -- 보증 종료일
+    bikou CLOB,                             -- 비고
+    CONSTRAINT fk_shain_ID_mimoto_hoshounin FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 29. 제 증명서 발급 통합 테이블 (shoumei_hakkyuu)
+CREATE TABLE shoumei_hakkyuu (
+    hakkyuu_ID NUMBER PRIMARY KEY,   -- 발급 ID (PK)
+    shain_ID NUMBER,                 -- 사원 ID (FK)
+    shoumei_shurui VARCHAR2(100),    -- 증명서 종류
+    shinsei_bi DATE,                 -- 신청일
+    hakkyuu_bi DATE,                 -- 발급일
+    mokuteki VARCHAR2(200),          -- 목적
+    zyoutai VARCHAR2(50),            -- 상태
+    hakkyuusha_mei VARCHAR2(100),    -- 발급자 이름
+    bikou CLOB,                      -- 비고
+    CONSTRAINT fk_shain_ID_shoumei FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 30. 근태 기록 테이블 (kintai_kiroku)
+CREATE TABLE kintai_kiroku (
+    kintai_kiroku_ID NUMBER PRIMARY KEY, -- 근태 기록 ID (PK)
+    shain_ID NUMBER,                     -- 사원 ID (FK)
+    kintai_ID NUMBER,                    -- 근태 ID (FK)
+    nyuryoku_bi date,	--입력일자
+    kintai_bi DATE,                      -- 근태 일자
+    kinngaku NUMBER,                     -- 금액(초과근무 등)
+    kintai_zikan NUMBER,                 -- 근태 시간
+    bikou CLOB,                          -- 비고
+    CONSTRAINT fk_shain_ID_kintai FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID),
+    CONSTRAINT fk_kintai_ID FOREIGN KEY (kintai_ID) REFERENCES kintai_koumoku_settei(kintai_ID)
+);
+
+-- 31. 일용직 근무 기록 테이블 (hiyatoi_kinmu_kiroku)
+CREATE TABLE hiyatoi_kinmu_kiroku (
+    kinmu_kiroku_ID NUMBER PRIMARY KEY,  -- 근무 기록 ID
+    shain_ID NUMBER,                     -- 사원 ID (Foreign Key)
+    kinmu_bi DATE,                       -- 근무 일자
+    kinmu_shurui VARCHAR2(50),           -- 현장/프로젝트 구분
+    nissuu_kyuuyo NUMBER,                -- 일당
+    shiharai_ritsu NUMBER,               -- 지급율
+    shotoku_zei NUMBER,                  -- 소득세
+    chihou_shotoku_zei NUMBER,           -- 지방소득세
+    zissai_shiharai NUMBER,              -- 실지급액
+    bikou CLOB,                          -- 비고
+    CONSTRAINT fk_shain_ID_hiyatoi FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 32. 휴가 기록 테이블 (kyuuka_kiroku)
+CREATE TABLE kyuuka_kiroku (
+    kyuuka_kiroku_ID NUMBER PRIMARY KEY, -- 휴가 기록 ID (PK)
+    shain_ID NUMBER,                     -- 사원 ID (FK)
+    kyuuka_shurui VARCHAR2(50),          -- 휴가 종류
+    kyuuka_kaishi_bi DATE,               -- 휴가 시작일
+    kyuuka_shuuryou_bi DATE,             -- 휴가 종료일
+    kyuuka_nissuu NUMBER,                -- 휴가 일수
+    bikou CLOB,                          -- 비고
+    CONSTRAINT fk_shain_ID_kyuuka FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 33. 근태 기록 변경 이력 테이블 (kintai_kiroku_henkou)
+CREATE TABLE kintai_kiroku_henkou (
+    henkou_ID NUMBER PRIMARY KEY,   -- 변경 이력 ID
+    kintai_kiroku_ID NUMBER,        -- 근태 기록ID
+    henkou_nin VARCHAR2(100),       -- 변경인
+    henkou_bi DATE,                 -- 변경 일자
+    zenkai_zyoutai CLOB,            -- 이전 상태
+    shinkai_zyoutai CLOB,           -- 변경 후 상태
+    henkou_ziyuu CLOB,              -- 변경 사유
+    CONSTRAINT fk_kiroku_ID FOREIGN KEY (kintai_kiroku_ID) REFERENCES kintai_kiroku(kintai_kiroku_ID)
+);
+
+-- 34. 급여이체결과테이블 (kyuuyo_hurikae_kekka)
+CREATE TABLE kyuuyo_hurikae_kekka (
+    hurikae_kekka_ID NUMBER PRIMARY KEY,    -- 이체 결과 ID
+    hurikae_bi DATE,                        -- 이체 일자
+    shukkin_ginkou VARCHAR2(50),            -- 출금 은행
+    shukkin_kouza_bangou VARCHAR2(20),      -- 출금 계좌 번호
+    nyuukin_ginkou VARCHAR2(50),            -- 입금 은행
+    nyuukin_kouza_bangou VARCHAR2(20),      -- 입금 계좌 번호
+    yokinshu VARCHAR2(100),                 -- 예금주
+    hurikae_kingaku NUMBER,                 -- 이체 금액
+    hurikae_zyushin_mei VARCHAR2(100),      -- 받는 분 통장 표시
+    shori_kekka VARCHAR2(100),              -- 처리 결과 (성공, 실패 등)
+    shain_ID NUMBER,                        -- 사원 ID (Foreign Key)
+    CONSTRAINT fk_shain_ID_hurikae_kekka FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 35. 급여이체신청테이블 (kyuuyo_hurikae_shinsei)
+CREATE TABLE kyuuyo_hurikae_shinsei (
+    hurikae_shinsei_ID NUMBER PRIMARY KEY,  -- 이체 신청 ID 
+    shain_ID NUMBER,                        -- 사원 ID (Foreign Key)
+    shinsei_bi DATE,                        -- 이체 요청일
+    hurikae_kingaku NUMBER,                 -- 이체 금액
+    shukkin_ginkou VARCHAR2(50),            -- 출금 은행
+    shukkin_kouza_bangou VARCHAR2(20),      -- 출금 계좌 번호
+    zyushinin_mei VARCHAR2(100),            -- 수령인 이름
+    nyuukin_ginkou VARCHAR2(50),            -- 입금 은행
+    nyuukin_kouza_bangou VARCHAR2(20),      -- 입금 계좌 번호
+    zuoutai VARCHAR2(50),                   -- 상태
+    CONSTRAINT fk_shain_ID_hurikae_shinsei FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+-- 36. 항목별 대장 테이블 (koumoku_betsu_daichou)
+CREATE TABLE koumoku_betsu_daichou (
+    daichou_ID NUMBER PRIMARY KEY,  -- 항목별 대장 고유 ID
+    shain_ID NUMBER,                -- 사원 번호 (FK)
+    koumoku_shurui VARCHAR2(50),    -- 항목 유형 (지급항목 또는 공제항목)
+    koumoku_mei VARCHAR2(100),      -- 항목 이름
+    kingaku NUMBER,                 -- 항목 금액
+    torihiki_bi DATE,               -- 거래 날짜
+    bikou CLOB,                     -- 비고
+    CONSTRAINT fk_shain_ID_daichou FOREIGN KEY (shain_ID) REFERENCES shain_touroku(shain_ID)
+);
+
+
+-- 37. 급여 정보 항목 테이블 (kyuuyo_zyouhou_koumoku)  -- 수정된 테이블 이름
+CREATE TABLE kyuuyo_zyouhou_koumoku (  -- 테이블 이름 수정
+    koumoku_ID NUMBER PRIMARY KEY,      -- 항목 ID
+    hurikae_shinsei_ID NUMBER,          -- 이체 신청 ID (Foreign Key)
+    koumoku_mei VARCHAR2(100),          -- 항목 이름
+    kingaku NUMBER,                     -- 항목 금액
+    CONSTRAINT fk_hurikae_shinsei_ID FOREIGN KEY (hurikae_shinsei_ID) REFERENCES kyuuyo_hurikae_shinsei(hurikae_shinsei_ID)
+);
+
+-- 38. 도장/로고변경이력테이블 (stanpu_henkou_rireki)
+CREATE TABLE stanpu_henkou_rireki (
+    rireki_id NUMBER PRIMARY KEY,        -- 履歴 ID
+    stanpu_shubetsu VARCHAR2(20),        -- 区分 (로고, 도장 등)
+    shinsei_bi DATE,                     -- 申請日
+    shinkou_zyoutai VARCHAR2(20),        -- 進行状態 (완료, 사용중 등)
+    henkou_naiyou CLOB,                  -- 内容 (변경 사항 설명)
+    fairu_keiro VARCHAR2(200),           -- 파일 경로
+    CONSTRAINT stanpu_shubetsu_check CHECK (stanpu_shubetsu IN ('로고', '도장')) -- 구분 제약 조건
+);
+
+-- 39. 현장/프로젝트관리테이블 (genzyo_projekuto_kannri)
+CREATE TABLE genzyo_projekuto_kannri (
+    genzyo_ID NUMBER PRIMARY KEY,    -- 현장 ID (PK)
+    genzyo_shurui VARCHAR2(50)       -- 현장 항목
+);
+
+--40 퇴직입력/관리 테이블
+CREATE TABLE Taishoku_kyuuyo ( --퇴직급여
+    kinzoku_nissuu NUMBER PRIMARY KEY,    -- 근속일수
+    Jitsu_shikyuu_gaku_bi date,  --퇴직급여일
+    Santei_kikan Date       -- 산정기간
+);
+--41 퇴직입력/관리 저장테이블
+CREATE TABLE taishoku_kyuuyo_Hozon (
+    shain_ID NUMBER PRIMARY KEY,                    -- 사원 ID, 외래 키로 설정
+    Seisan_kubun VARCHAR2(50),                   -- 정산 구분
+    jitsu_shikyuu_gaku_bi DATE,                  -- 실지급일
+    Santei_kikan DATE,                           -- 산정 기간
+    kinzoku_nissuu NUMBER(10),                   -- 근속 일수
+    taishoku_kin NUMBER(15, 2),                  -- 퇴직금 액수
+    CONSTRAINT fk_taishoku_kyuuyo_Hozon FOREIGN KEY (shain_id) REFERENCES shain_touroku(shain_id) -- shain_touroku 테이블의 shain_ID와 연관
+);
+
